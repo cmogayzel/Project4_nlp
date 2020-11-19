@@ -24,7 +24,7 @@ function handleSubmit(event) {
         
 
     }
-} //handle
+} 
 
     const webPost = async(url = '') => {
         const response = await fetch('http://localhost:8080/paper', {
