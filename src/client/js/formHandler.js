@@ -1,27 +1,83 @@
+const errmessage = document.getElementById('error');
+const nlpPolarity = document.getElementById('polarity');
+const subject = document.getElementById('subjectivity');
+const nlpConfidence = document.getElementById('confidence');
+
 
 function handleSubmit(event) {
-    event.preventDefault();
-    const text = document.getElementById("test-statement").value;
-    if (!text) return;
-    console.log(text);
-    fetch("/api", {
-      method: "POST",
-      mode: "cors",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ text })
-    })
-      .then(res => res.json())
-      .then(data => {
-        document.getElementById("text_polarity").innerHTML = data.polarity;
-        document.getElementById("text_subjectivity").innerHTML =
-          data.subjectivity;
-        document.getElementById("text_polarity_confidence").innerHTML =
-          data.polarity_confidence;
-        document.getElementById("text_subjectivity_confidence").innerHTML =
-          data.subjectivity_confidence;
-      });
-  }
+    event.preventDefault()
 
-export { handleSubmit }
+
+    let webUrl = document.getElementById('url').nodeValue;
+
+    console.log("Web form submitted by user.");
+
+    if(Client.checkForWebsite(webUrl)) {
+
+        errmessage.style.display = 'none';
+
+        nlpPolarity.innerHTML = '';
+        subject.innerHTML = '';
+        nlpConfidence.innerHTML = '';
+
+
+        
+
+    }
+} //handle
+
+    const webPost = async(url = '') => {
+        const response = await fetch('http://localhost:8080/paper', {
+            method: 'POST',
+            credentials: 'same-origin',
+            mode: "cors",
+            headers: {
+                'Content-Type': 'text/plain',
+            },
+        });
+
+        try {
+            const newInfo = await response.json();
+            console.log(newInfo);
+            return newInfo
+        } catch (error) {
+            console.log('Error', error);
+        } 
+    } //webPost
+
+    function updateSite(data) {
+         console.log(data);
+
+         nlpPolarity.innerHTML = "Polarity: " + polarityTest(data.score);
+         nlpConfidence.innerHTML = `Confidence: ${data.confidence}`;
+        subject.innerHTML = `Subject: ${data.subjectivity}`;
+    }
+
+    function polarityTest(score) {
+        let result; 
+
+        switch(score) {
+            case "P+":
+                result = "Positive is Strong";
+            break;
+            case "P":
+                result = "Positive";
+            break;
+            case "NEU":
+                result = "NEAUTRAL"
+            break;
+            case "N":
+                result =  "Negative";
+            break;
+            case "N+":
+                result = "Strong Negative";
+            break;
+            default: 
+                result = "No Data";
+        }
+
+        return result;
+    }
+
+
+export { handleSubmit, polarityTest }
